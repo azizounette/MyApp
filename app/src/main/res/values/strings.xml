@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MyApp</string>
     <string name="description_imageView_Lenna">Picture used to test photo manipulation methods.</string>
+    <string name="toGray">toGray</string>
 </resources>
