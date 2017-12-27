@@ -131,6 +131,98 @@ public class MainActivity extends AppCompatActivity {
         bmp.setPixels(pixels, 0, w, 0, 0, w, h);
     }
 
+    /* Convolution methods*/
+
+    // Calculates gaussian coefficients
+    private float gauss (int whatMask, int size) {
+        int mu = 0;
+        double sigma = 1/(size*Math.sqrt(2*Math.PI));
+        return (float) (1/(sigma*Math.sqrt(2*Math.PI))*Math.exp(-(whatMask-mu)*(whatMask-mu)/(2*sigma*sigma)));
+    }
+
+    // Sets the coefficients of the matrix used as a mask
+    // whatMask: 0 = Second matrix of Contouring  1 = AverageBlur    2 = GaussianBlur    3 = Contouring  4 = Sharpening
+    private int[] setMatrixConvo(int whatMask , int size) {
+        int[] res = new int[size*size];
+        if (whatMask == 3) {
+            res[0] = -1;res[1] = -1;res[2] = -1;res[6] = 1;res[7] = 1;res[8] = 1;
+        }
+        else if ( whatMask == 2) {
+            int aoe = (size - 1)/2;
+            for (int m = 0; m < size; m++) {
+                for (int n = 0; n < size; n++) {
+                    res[m + size * n] = (int) gauss((Math.abs(aoe-m)+Math.abs(aoe-n))/(size*size), size);
+                }
+            }
+        }
+        else if (whatMask == 0) {
+            res[0] = -1;res[2] = 1;res[3] = -1;res[5] = 1;res[6] = -1;res[8] = 1;
+        }
+        else if (whatMask == 1) {
+            for (int i = 0; i < size*size; i++){
+                res[i] = 1;
+            }
+        }
+        else if (whatMask == 4) {
+            res[1] = -1; res[3] = -1; res[4] = 5; res[5] = -1; res[7] = -1;
+        }
+        return res;
+    }
+    
+    // Applies the mask to the bitmap
+    private void convolution (Bitmap bmp, int cases, int aoe) {
+        int outh = bmp.getHeight();
+        int outw = bmp.getWidth();
+        int[] pixels = new  int [outw*outh];
+        int[] pixelsf = new int [outw*outh];
+        bmp.getPixels(pixels, 0, outw,  0, 0, outw, outh);
+        bmp.getPixels(pixelsf, 0, outw,  0, 0, outw, outh);
+        int matrixWidth = 2 * aoe + 1;
+        int[] matrixConvo = setMatrixConvo(cases, matrixWidth);
+        int matrixLen = matrixConvo.length;
+        int[] matrixConvo1 = new int[matrixLen];
+        if (cases == 3) {
+            matrixConvo1 = setMatrixConvo(0, matrixWidth);
+            toGray(bmp);
+        }
+        int[] currentPixel = new int [matrixLen];
+        for (int k = aoe; k < outw - aoe; k++) {
+            for (int l = aoe; l < outh - aoe; l++) {
+                float param1 = 0;
+                float param2 = 0;
+                float param3 = 0;
+                int weight = 0;
+                for (int m = 0; m < matrixWidth; m++) {
+                    for (int o = 0; o < matrixWidth; o++) {
+                        currentPixel[matrixWidth * m + o] = pixels[k - aoe + o + (l + m - aoe) * outw];
+                    }
+                }
+                // Case: Contouring
+                if (cases == 3) {
+                    for (int n = 0; n < 9; n++) {
+                        param1 += Color.red(currentPixel[n]) * matrixConvo[n];
+                        param2 += Color.red(currentPixel[n]) * matrixConvo1[n];
+                    }
+                    int norm = (int) Math.min(Math.sqrt(param1 * param1 + param2 * param2), 255);
+                    pixelsf[k + l * outw] = Color.rgb( norm, norm, norm);
+                }
+                // Other cases
+                else {
+                    for (int n = 0; n < matrixLen; n++) {
+                        param1 += Color.red(currentPixel[n]) * matrixConvo[n];
+                        param2 += Color.green(currentPixel[n]) * matrixConvo[n];
+                        param3 += Color.blue(currentPixel[n]) * matrixConvo[n];
+                        weight += matrixConvo[n];
+                    }
+                    pixelsf[k + l * outw] = Color.rgb((int) param1/weight, (int) param2/weight, (int) param3/weight);
+                }
+
+            }
+        }
+        bmp.setPixels(pixelsf, 0, outw,  0, 0, outw, outh);
+    }
+
+    /* End of convolution methods */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
