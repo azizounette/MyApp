@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -14,7 +16,19 @@ import static android.graphics.Color.valueOf;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Bitmap originalBmp;
     private Bitmap bmp;
+    private Button resetButton;
+
+
+    /* Used to reset the picture */
+    private View.OnClickListener resetButtonListener = new View.OnClickListener() {
+            public void onClick(View v) {
+                ImageView iv = findViewById(R.id.viewLenna);
+                iv.setImageBitmap(originalBmp);
+                bmp = originalBmp.copy(originalBmp.getConfig(), true);
+            }
+    };
 
 
     /* Sets picture to black and white */
@@ -229,9 +243,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ImageView iv = findViewById(R.id.viewLenna);
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.lenna);
-        bmp = bm.copy(bm.getConfig(), true);
+        resetButton = findViewById(R.id.resetButton);
+        originalBmp = BitmapFactory.decodeResource(getResources(), R.drawable.lenna);
+
+        // Copy that is used in order to apply changes to the original picture
+        bmp = originalBmp.copy(originalBmp.getConfig(), true);
         iv.setImageBitmap(bmp);
+
+        resetButton.setOnClickListener(resetButtonListener);
     }
 
     @Override

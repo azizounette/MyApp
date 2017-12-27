@@ -7,4 +7,8 @@
     <string name="equalColors">contrast-equalizer</string>
     <string name="overexp">overexposure</string>
     /* End of strings in menu */
+
+    /* Strings for buttons */
+    <string name="resetButton">RESET</string>
+    /* End strings for buttons */
 </resources>
