@@ -5,4 +5,7 @@
     <item
         android:id="@+id/toGray"
         android:title="@string/toGray" />
+    <item
+        android:id="@+id/equalColors"
+        android:title="@string/equalColors" />
 </menu>

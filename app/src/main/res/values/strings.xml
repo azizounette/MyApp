@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">MyApp</string>
     <string name="description_imageView_Lenna">Picture used to test photo manipulation methods.</string>
+
+    /* Strings used in menu */
     <string name="toGray">toGray</string>
+    <string name="equalColors">contrast-equalizer</string>
+    /* End of strings in menu */
 </resources>

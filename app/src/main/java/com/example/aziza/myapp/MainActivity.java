@@ -114,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked toGray", Toast.LENGTH_SHORT).show();
                 return true;
-                
+            case R.id.equalColors:
+                equalizeColors(bmp,cumulatedHist(histogram(bmp)));
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked equalColors", Toast.LENGTH_SHORT).show();
+                return true;
             default:
                 return false;
         }
