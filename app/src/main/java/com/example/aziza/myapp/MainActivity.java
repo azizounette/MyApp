@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bmp;
 
 
+    /* Sets picture to black and white */
     private void toGray(Bitmap bmp) {
         int outH = bmp.getHeight();
         int outW = bmp.getWidth();
@@ -28,6 +29,62 @@ public class MainActivity extends AppCompatActivity {
             pixels[i] = Color.rgb(gray, gray, gray);
         }
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
+    }
+
+    /* Histogram equalizer for contrasts in black and white */
+    private int[] histogram(Bitmap bmp) {
+        int[] res = new int[256];
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        Bitmap bmCopy = bmp.copy(bmp.getConfig(), true);
+        toGray(bmCopy);
+
+        int pixels[] = new int[w*h];
+        bmCopy.getPixels(pixels, 0, w, 0, 0, w, h);
+        for (int i = 0; i < w*h; i++)
+            res[Color.red(pixels[i])]++;
+        return res;
+    }
+
+    private int[] cumulatedHist(int[] hist) {
+        int[] res = new int[256];
+        res[0] = hist[0];
+        for (int i = 1; i < 256; i++)
+            res[i] = res[i - 1] + hist[i];
+        return res;
+    }
+
+    private void equalizer(Bitmap bmp, int[] cumulatedH) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int n = w * h;
+
+        int pixels[] = new int[n];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        for (int i = 0; i < w*h; i++) {
+            int r = (cumulatedH[Color.red(pixels[i])] * 255 / n);
+            pixels[i] = Color.rgb(r, r, r);
+        }
+        bmp.setPixels(pixels, 0, w, 0, 0, w, h);
+    }
+    /*End of histogram equalizer in black and white */
+
+
+    /* Histogram equalizer for colored pictures */
+    private void equalizeColors(Bitmap bmp, int[] cumulatedH) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int n = w * h;
+
+        int pixels[] = new int[n];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        for (int i = 0; i < w*h; i++) {
+            int r = (cumulatedH[Color.red(pixels[i])] * 255 / n);
+            int g = (cumulatedH[Color.green(pixels[i])] * 255 / n);
+            int b = (cumulatedH[Color.blue(pixels[i])] * 255 / n);
+            pixels[i] = Color.rgb(r, g, b);
+        }
+        bmp.setPixels(pixels, 0, w, 0, 0, w, h);
     }
 
     @Override
@@ -57,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked toGray", Toast.LENGTH_SHORT).show();
                 return true;
+                
             default:
                 return false;
         }
