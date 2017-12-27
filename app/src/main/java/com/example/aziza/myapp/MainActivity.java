@@ -31,6 +31,35 @@ public class MainActivity extends AppCompatActivity {
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
 
+    /* Linear Extension of Dynamics for contrasts*/
+    private void linExtension(Bitmap bmp) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int min = 255;
+        int max = 0;
+
+        // Finding the minimum and the maximum
+        for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++) {
+                int pix = bmp.getPixel(x, y);
+                if (Color.red(pix) < min)
+                    min = Color.red(pix);
+                if (Color.red(pix) > max)
+                    max = Color.red(pix);
+            }
+
+        // Changing the luminosity of each pixel
+        for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++) {
+                int pix = bmp.getPixel(x, y);
+                int pixColor = Color.red(pix);
+                int c = 255/(max - min) * (pixColor - min);
+                int finalColor = Color.rgb(c, c, c);
+                bmp.setPixel(x, y, finalColor);
+            }
+
+    }
+
     /* Histogram equalizer for contrasts in black and white */
     private int[] histogram(Bitmap bmp) {
         int[] res = new int[256];
@@ -101,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         }
         bmp.setPixels(pixels, 0, w, 0, 0, w, h);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
