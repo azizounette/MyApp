@@ -87,6 +87,21 @@ public class MainActivity extends AppCompatActivity {
         bmp.setPixels(pixels, 0, w, 0, 0, w, h);
     }
 
+    /* Overexposes a picture */
+    private void overexposure(Bitmap bmp) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int[] pixels = new int[w*h];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        for (int i = 0; i < w*h; i++) {
+            float[] hsv = new float[3];
+            Color.RGBToHSV(Color.red(pixels[i]), Color.green(pixels[i]), Color.blue(pixels[i]), hsv);
+            hsv[2] *= 1.5;
+            pixels[i] = Color.HSVToColor(hsv);
+        }
+        bmp.setPixels(pixels, 0, w, 0, 0, w, h);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,12 +127,17 @@ public class MainActivity extends AppCompatActivity {
             case R.id.toGray:
                 toGray(bmp);
                 iv.setImageBitmap(bmp);
-                Toast.makeText(MainActivity.this, "clicked toGray", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "clicked on toGray", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.equalColors:
                 equalizeColors(bmp,cumulatedHist(histogram(bmp)));
                 iv.setImageBitmap(bmp);
-                Toast.makeText(MainActivity.this, "clicked equalColors", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "clicked on equalColors", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.overexp:
+                overexposure(bmp);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on overexposure", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;

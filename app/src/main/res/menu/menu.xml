@@ -8,4 +8,7 @@
     <item
         android:id="@+id/equalColors"
         android:title="@string/equalColors" />
+    <item
+        android:id="@+id/overexp"
+        android:title="@string/overexp" />
 </menu>
