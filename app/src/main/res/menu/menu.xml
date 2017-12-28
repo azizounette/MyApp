@@ -11,4 +11,16 @@
     <item
         android:id="@+id/overexp"
         android:title="@string/overexp" />
+    <item
+        android:id="@+id/averageBlur"
+        android:title="@string/averageBlur" />
+    <item
+        android:id="@+id/gaussBlur"
+        android:title="@string/gaussBlur" />
+    <item
+        android:id="@+id/contouring"
+        android:title="@string/contour" />
+    <item
+        android:id="@+id/sharpenContours"
+        android:title="@string/sharpContours" />
 </menu>

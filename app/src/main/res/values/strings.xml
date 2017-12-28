@@ -6,6 +6,10 @@
     <string name="toGray">toGray</string>
     <string name="equalColors">contrast-equalizer</string>
     <string name="overexp">overexposure</string>
+    <string name="averageBlur">average Blur</string>
+    <string name="gaussBlur">Gaussian Blur</string>
+    <string name="contour">Contouring</string>
+    <string name="sharpContours">Sharpen Contours</string>
     /* End of strings in menu */
 
     /* Strings for buttons */

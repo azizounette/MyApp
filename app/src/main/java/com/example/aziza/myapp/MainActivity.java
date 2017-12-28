@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
 
-    /* Linear Extension of Dynamics for contrasts*/
+    /* Linear Extension of Dynamics for contrasts */
     private void linExtension(Bitmap bmp) {
         int w = bmp.getWidth();
         int h = bmp.getHeight();
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Sets the coefficients of the matrix used as a mask
-    // whatMask: 0 = Second matrix of Contouring  1 = AverageBlur    2 = GaussianBlur    3 = Contouring  4 = Sharpening
+    // whatMask: 0 = Second matrix of Contouring  1 = Average Blur    2 = Gaussian Blur    3 = Contouring  4 = Sharpening Contours
     private int[] setMatrixConvo(int whatMask , int size) {
         int[] res = new int[size*size];
         if (whatMask == 3) {
@@ -184,35 +184,35 @@ public class MainActivity extends AppCompatActivity {
     }
     
     // Applies the mask to the bitmap
-    private void convolution (Bitmap bmp, int cases, int aoe) {
+    public void convolution (Bitmap bmp, int whatMask, int area) {
         int outh = bmp.getHeight();
         int outw = bmp.getWidth();
         int[] pixels = new  int [outw*outh];
         int[] pixelsf = new int [outw*outh];
         bmp.getPixels(pixels, 0, outw,  0, 0, outw, outh);
         bmp.getPixels(pixelsf, 0, outw,  0, 0, outw, outh);
-        int matrixWidth = 2 * aoe + 1;
-        int[] matrixConvo = setMatrixConvo(cases, matrixWidth);
+        int matrixWidth = 2 * area + 1;
+        int[] matrixConvo = setMatrixConvo(whatMask, matrixWidth);
         int matrixLen = matrixConvo.length;
         int[] matrixConvo1 = new int[matrixLen];
-        if (cases == 3) {
+        if (whatMask == 3) {
             matrixConvo1 = setMatrixConvo(0, matrixWidth);
             toGray(bmp);
         }
         int[] currentPixel = new int [matrixLen];
-        for (int k = aoe; k < outw - aoe; k++) {
-            for (int l = aoe; l < outh - aoe; l++) {
+        for (int k = area; k < outw - area; k++) {
+            for (int l = area; l < outh - area; l++) {
                 float param1 = 0;
                 float param2 = 0;
                 float param3 = 0;
                 int weight = 0;
                 for (int m = 0; m < matrixWidth; m++) {
                     for (int o = 0; o < matrixWidth; o++) {
-                        currentPixel[matrixWidth * m + o] = pixels[k - aoe + o + (l + m - aoe) * outw];
+                        currentPixel[matrixWidth * m + o] = pixels[k - area + o + (l + m - area) * outw];
                     }
                 }
                 // Case: Contouring
-                if (cases == 3) {
+                if (whatMask == 3) {
                     for (int n = 0; n < 9; n++) {
                         param1 += Color.red(currentPixel[n]) * matrixConvo[n];
                         param2 += Color.red(currentPixel[n]) * matrixConvo1[n];
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     int norm = (int) Math.min(Math.sqrt(param1 * param1 + param2 * param2), 255);
                     pixelsf[k + l * outw] = Color.rgb( norm, norm, norm);
                 }
-                // Other cases
+                // Other whatMask
                 else {
                     for (int n = 0; n < matrixLen; n++) {
                         param1 += Color.red(currentPixel[n]) * matrixConvo[n];
@@ -279,6 +279,26 @@ public class MainActivity extends AppCompatActivity {
                 overexposure(bmp);
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked on overexposure", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.averageBlur:
+                convolution(bmp, 1, 3);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on average blur", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.gaussBlur:
+                convolution(bmp, 2, 3);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on gaussian blur", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.contouring:
+                convolution(bmp, 3, 3);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on contouring", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.sharpenContours:
+                convolution(bmp, 4, 3);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on sharpen contours", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;
