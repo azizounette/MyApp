@@ -12,13 +12,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import static android.graphics.Color.valueOf;
-
 public class MainActivity extends AppCompatActivity {
 
     private Bitmap originalBmp;
     private Bitmap bmp;
-    private Button resetButton;
 
 
     /* Used to reset the picture */
@@ -44,6 +41,24 @@ public class MainActivity extends AppCompatActivity {
         }
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
+
+
+    /* Changes the tint of the picture */
+    private void changeTint(Bitmap bmp, int tint) {
+        int outH = bmp.getHeight();
+        int outW = bmp.getWidth();
+
+        int pixels[] = new int[outW*outH];
+        bmp.getPixels(pixels, 0, outW, 0, 0, outW, outH);
+        for (int i = 0; i < outW*outH; i++) {
+            float[] hsv = new float[3];
+            Color.colorToHSV(pixels[i], hsv);
+            hsv[0] = tint;
+            pixels[i] = Color.HSVToColor(hsv);
+        }
+        bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
+    }
+
 
     /* Linear Extension of Dynamics for contrasts */
     private void linExtension(Bitmap bmp) {
@@ -243,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ImageView iv = findViewById(R.id.viewLenna);
-        resetButton = findViewById(R.id.resetButton);
+        Button resetButton = findViewById(R.id.resetButton);
         originalBmp = BitmapFactory.decodeResource(getResources(), R.drawable.lenna);
 
         // Copy that is used in order to apply changes to the original picture
@@ -291,14 +306,19 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "clicked on gaussian blur", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.contouring:
-                convolution(bmp, 3, 3);
+                convolution(bmp, 3, 1);
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked on contouring", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.sharpenContours:
-                convolution(bmp, 4, 3);
+                convolution(bmp, 4, 1);
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked on sharpen contours", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.changeTint:
+                changeTint(bmp, 337);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on change tint", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;

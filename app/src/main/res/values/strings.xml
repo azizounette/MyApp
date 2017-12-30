@@ -10,6 +10,7 @@
     <string name="gaussBlur">Gaussian Blur</string>
     <string name="contour">Contouring</string>
     <string name="sharpContours">Sharpen Contours</string>
+    <string name="tint">Change Tint</string>
     /* End of strings in menu */
 
     /* Strings for buttons */
