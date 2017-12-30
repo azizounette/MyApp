@@ -26,4 +26,7 @@
     <item
         android:id="@+id/changeTint"
         android:title="@string/tint" />
+    <item
+        android:id="@+id/grayAndTint"
+        android:title="@string/grayAndTint" />
 </menu>

@@ -11,6 +11,7 @@
     <string name="contour">Contouring</string>
     <string name="sharpContours">Sharpen Contours</string>
     <string name="tint">Change Tint</string>
+    <string name="grayAndTint">to Gray with tint</string>
     /* End of strings in menu */
 
     /* Strings for buttons */

@@ -59,6 +59,23 @@ public class MainActivity extends AppCompatActivity {
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
 
+    /* Sets picture to black and white except parts that are of a certain tint*/
+    private void grayAndTint(Bitmap bmp, int tint) {
+        int outH = bmp.getHeight();
+        int outW = bmp.getWidth();
+
+        int pixels[] = new int[outW*outH];
+        bmp.getPixels(pixels, 0, outW, 0, 0, outW, outH);
+        for (int i = 0; i < outW*outH; i++) {
+            float[] hsv = new float[3];
+            Color.colorToHSV(pixels[i], hsv);
+            if (!(hsv[0] < Math.min(360, tint + 30) && hsv[0] > Math.max(0, tint - 30))) {
+                int gray = (int) (0.11 * Color.blue(pixels[i]) + 0.3 * Color.red(pixels[i]) + 0.59 * Color.green(pixels[i]));
+                pixels[i] = Color.rgb(gray, gray, gray);
+            }
+        }
+        bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
+    }
 
     /* Linear Extension of Dynamics for contrasts */
     private void linExtension(Bitmap bmp) {
@@ -319,6 +336,11 @@ public class MainActivity extends AppCompatActivity {
                 changeTint(bmp, 337);
                 iv.setImageBitmap(bmp);
                 Toast.makeText(MainActivity.this, "clicked on change tint", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.grayAndTint:
+                grayAndTint(bmp, 260);
+                iv.setImageBitmap(bmp);
+                Toast.makeText(MainActivity.this, "clicked on to gray and tint", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;
