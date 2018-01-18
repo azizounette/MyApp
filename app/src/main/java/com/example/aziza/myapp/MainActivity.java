@@ -211,6 +211,8 @@ public class MainActivity extends AppCompatActivity {
     // whatMask: 0 = Second matrix of Contouring  1 = Average Blur    2 = Gaussian Blur    3 = Contouring  4 = Sharpening Contours
     private int[] setMatrixConvo(int whatMask , int size) {
         int[] res = new int[size*size];
+
+        // Prewitt
         if (whatMask == 3) {
             res[0] = -1;
             res[1] = -1;
@@ -219,7 +221,9 @@ public class MainActivity extends AppCompatActivity {
             res[7] = 1;
             res[8] = 1;
         }
-        else if ( whatMask == 2) {
+
+        // Gaussian
+        else if (whatMask == 2) {
             int aoe = (size - 1)/2;
             for (int maskLine = 0; maskLine < size; maskLine++) {
                 for (int n = 0; n < size; n++) {
@@ -227,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        //Prewitt
         else if (whatMask == 0) {
             res[0] = -1;
             res[2] = 1;
@@ -235,11 +241,15 @@ public class MainActivity extends AppCompatActivity {
             res[6] = -1;
             res[8] = 1;
         }
+
+        //Blur by average
         else if (whatMask == 1) {
             for (int i = 0; i < size*size; i++){
                 res[i] = 1;
             }
         }
+
+        // Sharpening contours
         else if (whatMask == 4) {
             res[1] = -1;
             res[3] = -1;
