@@ -1,8 +1,10 @@
 package com.example.aziza.myapp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +18,25 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap originalBmp;
     private Bitmap bmp;
+
+    //static final int REQUEST_TAKE_PHOTO = 1;
+
+    /*private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ImageView iv = findViewById(R.id.viewLenna);
+            iv.setImageBitmap(imageBitmap);
+        }
+    }*/
 
 
     /* Used to reset the picture */
@@ -191,18 +212,28 @@ public class MainActivity extends AppCompatActivity {
     private int[] setMatrixConvo(int whatMask , int size) {
         int[] res = new int[size*size];
         if (whatMask == 3) {
-            res[0] = -1;res[1] = -1;res[2] = -1;res[6] = 1;res[7] = 1;res[8] = 1;
+            res[0] = -1;
+            res[1] = -1;
+            res[2] = -1;
+            res[6] = 1;
+            res[7] = 1;
+            res[8] = 1;
         }
         else if ( whatMask == 2) {
             int aoe = (size - 1)/2;
-            for (int m = 0; m < size; m++) {
+            for (int maskLine = 0; maskLine < size; maskLine++) {
                 for (int n = 0; n < size; n++) {
-                    res[m + size * n] = (int) gauss((Math.abs(aoe-m)+Math.abs(aoe-n))/(size*size), size);
+                    res[maskLine + size * n] = (int) gauss((Math.abs(aoe-maskLine)+Math.abs(aoe-n))/(size*size), size);
                 }
             }
         }
         else if (whatMask == 0) {
-            res[0] = -1;res[2] = 1;res[3] = -1;res[5] = 1;res[6] = -1;res[8] = 1;
+            res[0] = -1;
+            res[2] = 1;
+            res[3] = -1;
+            res[5] = 1;
+            res[6] = -1;
+            res[8] = 1;
         }
         else if (whatMask == 1) {
             for (int i = 0; i < size*size; i++){
@@ -210,7 +241,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else if (whatMask == 4) {
-            res[1] = -1; res[3] = -1; res[4] = 5; res[5] = -1; res[7] = -1;
+            res[1] = -1;
+            res[3] = -1;
+            res[4] = 5;
+            res[5] = -1;
+            res[7] = -1;
         }
         return res;
     }
@@ -226,32 +261,36 @@ public class MainActivity extends AppCompatActivity {
         int matrixWidth = 2 * area + 1;
         int[] matrixConvo = setMatrixConvo(whatMask, matrixWidth);
         int matrixLen = matrixConvo.length;
-        int[] matrixConvo1 = new int[matrixLen];
+        int[] matrixConvoContour = new int[matrixLen]; // Contouring
         if (whatMask == 3) {
-            matrixConvo1 = setMatrixConvo(0, matrixWidth);
+            matrixConvoContour = setMatrixConvo(0, matrixWidth);
             toGray(bmp);
         }
         int[] currentPixel = new int [matrixLen];
-        for (int k = area; k < outw - area; k++) {
-            for (int l = area; l < outh - area; l++) {
+        for (int numLine = area; numLine < outw - area; numLine++) {
+            for (int numColumn = area; numColumn < outh - area; numColumn++) {
                 float param1 = 0;
                 float param2 = 0;
                 float param3 = 0;
                 int weight = 0;
-                for (int m = 0; m < matrixWidth; m++) {
-                    for (int o = 0; o < matrixWidth; o++) {
-                        currentPixel[matrixWidth * m + o] = pixels[k - area + o + (l + m - area) * outw];
+
+                // Isolating the area we are going to work on
+                for (int maskLine = 0; maskLine < matrixWidth; maskLine++) {
+                    for (int maskColumn = 0; maskColumn < matrixWidth; maskColumn++) {
+                        currentPixel[matrixWidth * maskLine + maskColumn] = pixels[numLine - area + maskColumn + (numColumn + maskLine - area) * outw];
                     }
                 }
+
                 // Case: Contouring
                 if (whatMask == 3) {
                     for (int n = 0; n < 9; n++) {
                         param1 += Color.red(currentPixel[n]) * matrixConvo[n];
-                        param2 += Color.red(currentPixel[n]) * matrixConvo1[n];
+                        param2 += Color.red(currentPixel[n]) * matrixConvoContour[n];
                     }
                     int norm = (int) Math.min(Math.sqrt(param1 * param1 + param2 * param2), 255);
-                    pixelsf[k + l * outw] = Color.rgb( norm, norm, norm);
+                    pixelsf[numLine + numColumn * outw] = Color.rgb(norm, norm, norm);
                 }
+
                 // Other whatMask
                 else {
                     for (int n = 0; n < matrixLen; n++) {
@@ -260,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                         param3 += Color.blue(currentPixel[n]) * matrixConvo[n];
                         weight += matrixConvo[n];
                     }
-                    pixelsf[k + l * outw] = Color.rgb((int) param1/weight, (int) param2/weight, (int) param3/weight);
+                    pixelsf[numLine + numColumn * outw] = Color.rgb((int) param1/weight, (int) param2/weight, (int) param3/weight);
                 }
 
             }
@@ -283,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
         iv.setImageBitmap(bmp);
 
         resetButton.setOnClickListener(resetButtonListener);
+        //dispatchTakePictureIntent();
     }
 
     @Override
